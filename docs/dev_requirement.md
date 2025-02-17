@@ -24,7 +24,10 @@ class Ghostcut:
     def free(self, free_input: Dict[str, Any] | FreeInput) -> Dict[str, Any]:
         if not isinstance(free_input, FreeInput):
             free_input = FreeInput.model_validate(free_input)
-        # requests中需要dict或json的地方        
+        # requests中需要dict或json的地方，通过model_dump或model_dump_json转换为dict和str
+        free_input_dict = free_input.model_dump(exclude_none=True)  
+        free_input_json = free_input.model_dump_json(exclude_none=True)
+        
 
 # 一些类型, 譬如ExtraOptions的定义可以参考ghostcut_util/db/table_class和ghostcut_util/enums
 class FreeInput(BaseModel):
