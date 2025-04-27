@@ -4,10 +4,10 @@
 # https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-O8YRdF0OZogmbAxNF4vcaxZtnnb
 
 
-from ghostcut.models.ghostcut_model import GhostCutModel
+from ghostcut_python_sdk.ghostcut.models.ghostcut_model import GhostCutModel
 from typing import Dict, List, Any
 
-from ghostcut.models.video.ghostcut_video_task_create_request_extra_option import GhostCutVideoTaskCreateRequestExtraOption
+from ghostcut_python_sdk.ghostcut.models.video.ghostcut_video_task_create_request_extra_option import GhostCutVideoTaskCreateRequestExtraOption
 
 
 class GhostCutVideoTaskCreateRequest(GhostCutModel):
