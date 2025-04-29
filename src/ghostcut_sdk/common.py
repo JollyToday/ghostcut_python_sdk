@@ -1,52 +1,25 @@
-# -*- coding: utf-8 -*-
-
 # 3. 基础API 调用示例
 # https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-Mimndtw9NoMllNx09Ruc6V9nnEe
 
-from typing import Optional, Union, Dict, Any
-
 import requests
-from ghostcut_sdk.client import ZhaoliClient, ZhaoliAPIException
+from typing import Optional, Dict, List, Literal
+from ghostcut_sdk.client import BaseGhostcutClient
+from ghostcut_sdk.exceptions import GhostcutApiException
 
 
-class BasicAPI:
+AvailableEnumText = Literal[
+    "ProcessStatus", "sourceLang", "Lang", "ImageTaskStatus", "musicRegion"
+]
+
+
+
+class CommonApi:
     """
     基础API接口封装
     """
 
-    def __init__(self, client: ZhaoliClient):
+    def __init__(self, client: BaseGhostcutClient):
         self.client = client
-
-    def query_enum(self, text: str) -> list:
-        """
-        3.1 查询枚举（无需签名）
-
-        说明: 此接口无需加签，调用时不需传appId、timestamp、sign。
-
-        :param text: 枚举名字，如 ProcessStatus、musicRegion、sourceLang等，忽略大小写
-        :return: 枚举列表，每个元素为dict，包含code、description等信息
-        """
-        # 该接口不走网关，需要单独请求。根据文档地址：
-        url = "https://api.zhaoli.com/v-w-c/enum/query2"
-
-        import requests
-        import json
-
-        headers = {"Content-Type": "application/json"}
-        payload = {"text": text}
-
-        try:
-            resp = requests.post(url, json=payload, headers=headers, timeout=30)
-            resp.raise_for_status()
-            data = resp.json()
-        except Exception as e:
-            raise ZhaoliAPIException(-1, f"查询枚举请求异常: {str(e)}")
-
-        code = data.get("code")
-        if code != 1000:
-            raise ZhaoliAPIException(code, data.get("msg", "未知错误"))
-
-        return data.get("body", [])
 
     def create_sub_user(
         self,
@@ -63,7 +36,7 @@ class BasicAPI:
         :param custom_identity: 自定义唯一标识，非必填
         :param uname: 用户昵称，非必填
         :return: uid 子用户唯一标识
-        :raises: ZhaoliAPIException
+        :raises: GhostcutApiException
         """
         # 至少phone/mail/custom_identity三者之一必须传入，校验
         if not any([phone, mail, custom_identity]):
@@ -83,8 +56,22 @@ class BasicAPI:
         body = self.client.post(path, params)
         uid = body.get("uid")
         if not uid:
-            raise ZhaoliAPIException(-1, "创建子用户接口未返回uid")
+            raise GhostcutApiException(-1, "创建子用户接口未返回uid")
         return uid
+
+    def query_enum(self, text: AvailableEnumText) -> Optional[List]:
+        """
+        3.1 查询枚举（无需签名）
+
+        说明: 此接口无需加签，调用时不需传appId、timestamp、sign。
+
+        :param text: 枚举名字，如 ProcessStatus、musicRegion、sourceLang等，忽略大小写
+        :return: 枚举列表，每个元素为dict，包含code、description等信息
+        """
+        # 该接口不走网关，需要单独请求。根据文档地址：
+        path = "/enum/query2"
+        params = {"text": text}
+        return self.client.post(path, params, use_auth=False)
 
     def query_balance(
         self, not_zero: Optional[bool] = False, is_valid: Optional[bool] = False
@@ -107,7 +94,7 @@ class BasicAPI:
         body = self.client.post(path, params or {})
         return body
 
-    def get_tts_voice_list(self, is_advanced: Optional[int] = 0) -> list:
+    def query_tts_voice_list(self, is_advanced: Optional[int] = 0) -> list:
         """
         3.5 获取TTS声音列表（基础/高级）
 
@@ -123,7 +110,7 @@ class BasicAPI:
         # body 可能是音色列表数组
         return body
 
-    def get_tts_really_voice_list(
+    def query_natural_voice_list(
         self, page_number: int, page_size: Optional[int] = 20
     ) -> dict:
         """
@@ -140,11 +127,9 @@ class BasicAPI:
         params = {"pageNumber": page_number}
         if page_size and page_size > 0:
             params["pageSize"] = page_size
+        return self.client.post(path, params)
 
-        body = self.client.post(path, params)
-        return body
-
-    def upload_local_file(self, file_path: str) -> dict:
+    def upload_local_file(self, file_path: str) -> Optional[Dict]:
         """
         3.4 本地文件上传（您未提供具体接口说明，以下为常见实现示例）
         说明：
@@ -155,33 +140,19 @@ class BasicAPI:
         :return: 上传结果dict，含返回的文件标识等
         """
         # 示例接口地址和参数，需替换成真实接口
-        url = "https://api.zhaoli.com/v-w-c/gateway/ve/file/upload"
+        path = "/ve/file/upload"
         files = {"file": open(file_path, "rb")}
-        # 需要鉴权参数时补充，简单示例：
-        import time
-        import hashlib
-        import json
+        body = self.client.post(path, files=files)
+        return body
 
-        app_id = self.client.app_id
-        app_secret = self.client.app_secret
-        timestamp = int(time.time() * 1000)
 
-        # 简单签名示例（具体签名规则请根据实际接口调整）
-        sign_str = f"appId={app_id}&timestamp={timestamp}&appSecret={app_secret}"
-        sign = hashlib.md5(sign_str.encode("utf-8")).hexdigest()
 
-        data = {"appId": app_id, "timestamp": timestamp, "sign": sign}
+if __name__ == "__main__":
+    IS_ADVANCED = Literal[0, 1]
+    
+    def test(is_advanced: IS_ADVANCED):
+        print(is_advanced)
 
-        try:
-            resp = requests.post(url, files=files, data=data, timeout=60)
-            resp.raise_for_status()
-            result = resp.json()
-        except Exception as e:
-            raise ZhaoliAPIException(-1, f"文件上传失败: {e}")
-        finally:
-            files["file"].close()
-
-        if result.get("code") != 1000:
-            raise ZhaoliAPIException(result.get("code"), result.get("msg"))
-
-        return result.get("body", {})
+    test(0)
+    test(1)
+    test(2)

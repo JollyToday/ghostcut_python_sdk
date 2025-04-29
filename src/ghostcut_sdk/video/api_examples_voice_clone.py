@@ -4,11 +4,11 @@
 # https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-MEiqdbIeGoWUE8xDq4jclw38nDf
 import json
 from typing import List, Optional, Dict, Any
-from  ghostcut_sdk.client import ZhaoliClient,ZhaoliAPIException
+from  ghostcut_sdk.client import BaseGhostcutClient,GhostcutApiException
 
 
 class VoiceCloneAPI:
-    def __init__(self, client: ZhaoliClient):
+    def __init__(self, client: BaseGhostcutClient):
         self.client = client
 
     def create_incorporate_task(
@@ -32,7 +32,7 @@ class VoiceCloneAPI:
         :param extra_options: 额外配置，必须包含customer_input字段
         :param callback: 回调地址（可选）
         :return: 作品信息字典
-        :raises: ZhaoliAPIException
+        :raises: GhostcutApiException
         """
         if not urls or len(urls) != 1:
             raise ValueError("urls 必须是长度为1的列表，仅支持单视频")
@@ -113,7 +113,7 @@ class VoiceCloneAPI:
         path = "/ve/work/voice/clone"
         body = self.client.post(path, params)
         if not isinstance(body, (int, float)):
-            raise ZhaoliAPIException(-1, "重新配音任务接口返回异常，期待任务ID数字")
+            raise GhostcutApiException(-1, "重新配音任务接口返回异常，期待任务ID数字")
         return int(body)
 
     def query_redubbing_task(self, task_id: int) -> Dict[str, Any]:
@@ -155,7 +155,7 @@ class VoiceCloneAPI:
         path = "/ve/work/voice/clone/synthesize"
         body = self.client.post(path, params)
         if not isinstance(body, bool):
-            raise ZhaoliAPIException(-1, "重新合成接口返回异常，期待bool值")
+            raise GhostcutApiException(-1, "重新合成接口返回异常，期待bool值")
         return body
 
     def apply_auth_code(

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 from typing import Optional, Union, List, Dict, Any
-from  ghostcut_sdk.client import ZhaoliClient,ZhaoliAPIException
+from  ghostcut_sdk.client import BaseGhostcutClient,GhostcutApiException
 # 4. AI视频相关API 调用示例
 # https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-HwKldyKEUoRGMnxgGTycUamRn0c
 
@@ -13,7 +13,7 @@ class VideoAPI:
     支持创建异步视频处理任务，查询任务状态
     """
 
-    def __init__(self, client: ZhaoliClient):
+    def __init__(self, client: BaseGhostcutClient):
         self.client = client
 
     def create_task(
@@ -236,7 +236,7 @@ class VideoAPI:
 
         body = self.client.post(path, params)
         if not isinstance(body, (int, float)):
-            raise ZhaoliAPIException(-1, "创建视频处理任务返回异常，期待任务ID")
+            raise GhostcutApiException(-1, "创建视频处理任务返回异常，期待任务ID")
         return int(body)
 
     def query_task(self, task_id: int) -> dict:
@@ -245,7 +245,7 @@ class VideoAPI:
 
         :param task_id: 任务ID
         :return: 响应body字典，包含状态和结果详情
-        :raises: ZhaoliAPIException
+        :raises: GhostcutApiException
         """
         path = "/ve/work/query"
         params = {"id": task_id}

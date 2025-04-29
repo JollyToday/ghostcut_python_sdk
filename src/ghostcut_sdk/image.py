@@ -5,7 +5,7 @@
 
 import json
 from typing import Optional, Union, Dict, Any
-from  ghostcut_sdk.client import ZhaoliClient,ZhaoliAPIException
+from  ghostcut_sdk.client import BaseGhostcutClient,GhostcutApiException
 
 
 class ImageAPI:
@@ -18,10 +18,10 @@ class ImageAPI:
     - 重新提交翻译结果进行合成
     """
 
-    def __init__(self, client: ZhaoliClient):
+    def __init__(self, client: BaseGhostcutClient):
         self.client = client
 
-    def create_task(
+    def translate(
         self,
         download_info: Union[str, Dict[str, str]],
         translate_on: int,
@@ -44,7 +44,7 @@ class ImageAPI:
         :param callback: 回调url，可不传
         :param extra_options: 额外配置，如字体等，字典格式
         :return: 图片任务ID（long）
-        :raises: ZhaoliAPIException
+        :raises: GhostcutApiException
         """
         path = "/ve/image/translate"
 
@@ -83,7 +83,7 @@ class ImageAPI:
         body = self.client.post(path, params)
         # 返回body为任务ID
         if not isinstance(body, (int, float)):
-            raise ZhaoliAPIException(-1, "创建任务接口返回异常，期待任务ID")
+            raise GhostcutApiException(-1, "创建任务接口返回异常，期待任务ID")
         return int(body)
 
     def query_task(self, task_id: int) -> dict:
@@ -92,7 +92,7 @@ class ImageAPI:
 
         :param task_id: 图片任务ID
         :return: 接口返回body字典，包含status、result等字段
-        :raises: ZhaoliAPIException
+        :raises: GhostcutApiException
         """
         path = "/ve/image/translate/query"
         params = {"id": task_id}
@@ -106,7 +106,7 @@ class ImageAPI:
         :param task_id: 图片任务ID
         :param expire_seconds: 授权码过期秒数，范围0~604800，默认3600秒
         :return: 授权码字符串，失败返回None
-        :raises: ZhaoliAPIException
+        :raises: GhostcutApiException
         """
         path = "/ve/image/translate/auth/apply"
         # 限制过期时间范围
@@ -145,7 +145,7 @@ class ImageAPI:
         :param task_id: 任务ID
         :param result_json: 修改后的result字段，json字符串或dict形式
         :return: 1表示任务已正常发起
-        :raises: ZhaoliAPIException
+        :raises: GhostcutApiException
         """
         path = "/ve/image/translate/redo"
         if isinstance(result_json, dict):
@@ -166,5 +166,5 @@ class ImageAPI:
         }
         body = self.client.post(path, params)
         if not isinstance(body, (int, float)):
-            raise ZhaoliAPIException(-1, "重新合成接口返回异常")
+            raise GhostcutApiException(-1, "重新合成接口返回异常")
         return int(body)
