@@ -1,6 +1,6 @@
 import json
 from typing import List, Optional, Dict, Any
-from  ghostcut_python_sdk.ghostcut.client import ZhaoliClient
+from  ghostcut_sdk.client import ZhaoliClient
 
 
 class OrdinaryVoiceCloneAPI:

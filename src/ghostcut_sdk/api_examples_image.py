@@ -5,7 +5,7 @@
 
 import json
 from typing import Optional, Union, Dict, Any
-from  ghostcut_python_sdk.ghostcut.client import ZhaoliClient,ZhaoliAPIException
+from  ghostcut_sdk.client import ZhaoliClient,ZhaoliAPIException
 
 
 class ImageAPI:

@@ -6,7 +6,9 @@
 from typing import Optional, Union, Dict, Any
 
 import requests
-from  ghostcut_python_sdk.ghostcut.client import ZhaoliClient,ZhaoliAPIException
+from ghostcut_sdk.client import ZhaoliClient, ZhaoliAPIException
+
+
 class BasicAPI:
     """
     基础API接口封装
@@ -51,7 +53,7 @@ class BasicAPI:
         phone: Optional[str] = None,
         mail: Optional[str] = None,
         custom_identity: Optional[str] = None,
-        uname: Optional[str] = None
+        uname: Optional[str] = None,
     ) -> str:
         """
         3.2 创建子用户
@@ -85,9 +87,7 @@ class BasicAPI:
         return uid
 
     def query_balance(
-        self,
-        not_zero: Optional[bool] = False,
-        is_valid: Optional[bool] = False
+        self, not_zero: Optional[bool] = False, is_valid: Optional[bool] = False
     ) -> dict:
         """
         3.3 查询余额
@@ -107,10 +107,7 @@ class BasicAPI:
         body = self.client.post(path, params or {})
         return body
 
-    def get_tts_voice_list(
-        self,
-        is_advanced: Optional[int] = 0
-    ) -> list:
+    def get_tts_voice_list(self, is_advanced: Optional[int] = 0) -> list:
         """
         3.5 获取TTS声音列表（基础/高级）
 
@@ -127,9 +124,7 @@ class BasicAPI:
         return body
 
     def get_tts_really_voice_list(
-        self,
-        page_number: int,
-        page_size: Optional[int] = 20
+        self, page_number: int, page_size: Optional[int] = 20
     ) -> dict:
         """
         3.6 获取TTS声音列表（超真实）
@@ -175,11 +170,7 @@ class BasicAPI:
         sign_str = f"appId={app_id}&timestamp={timestamp}&appSecret={app_secret}"
         sign = hashlib.md5(sign_str.encode("utf-8")).hexdigest()
 
-        data = {
-            "appId": app_id,
-            "timestamp": timestamp,
-            "sign": sign
-        }
+        data = {"appId": app_id, "timestamp": timestamp, "sign": sign}
 
         try:
             resp = requests.post(url, files=files, data=data, timeout=60)
@@ -194,4 +185,3 @@ class BasicAPI:
             raise ZhaoliAPIException(result.get("code"), result.get("msg"))
 
         return result.get("body", {})
-
