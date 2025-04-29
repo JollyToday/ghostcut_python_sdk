@@ -1,6 +1,6 @@
 import unittest
-from ghostcut_python_sdk.ghostcut.uploader import FileUploader
-from ghostcut_python_sdk.ghostcut.errors.exceptions import  UploadError,PolicyError
+from ghostcut_sdk.uploader import FileUploader
+from ghostcut_sdk.errors.exceptions import  UploadError,PolicyError
 
 class TestFileUploader(unittest.TestCase):
 

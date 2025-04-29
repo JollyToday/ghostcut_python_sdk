@@ -1,15 +1,15 @@
 # # -*- coding: utf-8 -*-
-# from ghostcut_python_sdk.ghostcut.config.const import GHOSTCUT_API_ENDPOINT
+# from ghostcut_sdk.config.const import GHOSTCUT_API_ENDPOINT
 # import requests
 # import json
 #
-# from ghostcut_python_sdk.ghostcut.models.ghostcut_model import GhostCutModel
+# from ghostcut_sdk.models.ghostcut_model import GhostCutModel
 # from typing import Dict, List, Any
 #
-# from ghostcut_python_sdk.ghostcut.models.video.ghostcut_video_task_create_request import (
+# from ghostcut_sdk.models.video.ghostcut_video_task_create_request import (
 #     GhostCutVideoTaskCreateRequest,
 # )
-# from ghostcut_python_sdk.ghostcut.utils.ghostcut_sign_utils import generate_ghostcut_sign
+# from ghostcut_sdk.utils.ghostcut_sign_utils import generate_ghostcut_sign
 #
 #
 # class GhostCutClient:

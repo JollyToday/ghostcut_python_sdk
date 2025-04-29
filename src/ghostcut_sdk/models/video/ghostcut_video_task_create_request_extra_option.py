@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ghostcut_python_sdk.ghostcut.models.ghostcut_model import GhostCutModel
+from ghostcut_sdk.models.ghostcut_model import GhostCutModel
 
 from typing import Dict, List, Any
 
