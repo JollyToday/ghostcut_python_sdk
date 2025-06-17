@@ -28,11 +28,11 @@ class CommonApi(BaseGhostcutApi):
     """
     def __init__(
         self,
-        app_id: Optional[str] = None,
-        app_secret: Optional[str] = None,
+        api_key: Optional[str] = None,
+        api_secret: Optional[str] = None,
         base_url: str = DEFAULT_BASE_URL,
     ):
-        super().__init__(app_id, app_secret, base_url)
+        super().__init__(api_key, api_secret, base_url)
 
     def create_sub_user(
         self,

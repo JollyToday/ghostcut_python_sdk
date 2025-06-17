@@ -14,15 +14,15 @@ class BaseGhostcutApi:
 
     def __init__(
         self,
-        app_id: Optional[str] = None,
-        app_secret: Optional[str] = None,
+        api_key: Optional[str] = None,
+        api_secret: Optional[str] = None,
         base_url: str = DEFAULT_BASE_URL,
     ):
-        self.app_id = app_id if app_id else os.environ.get("GHOSTCUT_APP_ID")
-        self.app_secret = (
-            app_secret if app_secret else os.environ.get("GHOSTCUT_APP_SECRET")
+        self.api_key = api_key if api_key else os.environ.get("GHOSTCUT_API_KEY")
+        self.api_secret = (
+            api_secret if api_secret else os.environ.get("GHOSTCUT_API_SECRET")
         )
-        if self.app_id is None or self.app_secret is None:
+        if self.api_key is None or self.api_secret is None:
             raise ValueError("app id or secret is not supplied")
         self.base_url = base_url.rstrip("/")
 
@@ -42,7 +42,7 @@ class BaseGhostcutApi:
         # 添加公共参数
         if use_auth:
             params = params.copy() if params else dict()
-            params["appId"] = self.app_id
+            params["appId"] = self.api_key
             params["timestamp"] = int(time.time() * 1000)
             # 生成签名
             sign = self._sign(params)
@@ -80,7 +80,7 @@ class BaseGhostcutApi:
         """
         sorted_items = sorted(params.items())
         sign_str = "&".join(f"{k}={v}" for k, v in sorted_items)
-        sign_str += self.app_secret
+        sign_str += self.api_secret
         md5 = hashlib.md5()
         md5.update(sign_str.encode("utf-8"))
         return md5.hexdigest()

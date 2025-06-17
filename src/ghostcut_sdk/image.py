@@ -6,6 +6,7 @@ from ghostcut_sdk.ghostcut_type.image import (
     ApplyAuthCodeRequest,
 )
 from ghostcut_sdk.config.path import (
+    DEFAULT_BASE_URL,
     EDITOR_BASE_URL,
     VE_IMAGE_TRANSLATE_PATH,
     VE_IMAGE_TRANSLATE_QUERY_PATH,
@@ -20,7 +21,7 @@ https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-WtRQdwT2xoVy
 """
 
 
-class ImageAPI:
+class ImageAPI(BaseGhostcutApi):
     """
     AI图片相关API封装：
     - 创建图片处理任务（擦除/翻译）
@@ -30,8 +31,13 @@ class ImageAPI:
     - 重新提交翻译结果进行合成
     """
 
-    def __init__(self, client: BaseGhostcutApi):
-        self.client = client
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        api_secret: Optional[str] = None,
+        base_url: str = DEFAULT_BASE_URL,
+    ):
+        super().__init__(api_key, api_secret, base_url)
 
     def translate(
         self,
@@ -74,7 +80,7 @@ class ImageAPI:
         Returns:
             dict: task status and result
         """
-        body = self.client.post(VE_IMAGE_TRANSLATE_QUERY_PATH, {"id": task_id})
+        body = self.post(VE_IMAGE_TRANSLATE_QUERY_PATH, {"id": task_id})
         # TODO 返回的数据比较复杂，创建一个类来处理
         return body
 
@@ -95,7 +101,7 @@ class ImageAPI:
         """
         if isinstance(request, Dict):
             request = ApplyAuthCodeRequest(**request)
-        body = self.client.post(
+        body = self.post(
             VE_IMAGE_TRANSLATE_AUTH_APPLY_PATH,
             request.model_dump(by_alias=True, exclude_none=True),
         )
@@ -141,7 +147,7 @@ class ImageAPI:
             raise ValueError("result_json参数必须是json字符串或dict")
 
         params = {"id": task_id, "result": result_str}
-        body = self.client.post(VE_IMAGE_TRANSLATE_REDO_PATH, params)
+        body = self.post(VE_IMAGE_TRANSLATE_REDO_PATH, params)
         if not isinstance(body, (int, float)):
             raise GhostcutApiException(-1, "重新合成接口返回异常")
         return int(body)

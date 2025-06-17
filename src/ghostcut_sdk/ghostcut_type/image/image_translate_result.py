@@ -45,7 +45,7 @@ class RotateInfo(BaseModel):
 class RenderInfo(BaseModel):
     text: str = Field(..., description="Rendered text")
     text_width: float = Field(..., description="Text width")
-    anchor_point: list[int] = Field(..., description="Anchor point coordinates")
+    anchor_point: List[int] = Field(..., description="Anchor point coordinates")
     is_rotate: bool = Field(..., description="Whether text is rotated")
     rotate_info: Optional[RotateInfo] = Field(
         default=None, description="Rotate information"
