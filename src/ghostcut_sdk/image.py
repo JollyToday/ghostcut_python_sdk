@@ -1,11 +1,23 @@
-# -*- coding: utf-8 -*-
-
-# 5. AI图片相关API 调用示例
-# https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-WtRQdwT2xoVyUOxiN98ck8k1nVf
-
 import json
 from typing import Optional, Union, Dict, Any
-from  ghostcut_sdk.client import BaseGhostcutApi,GhostcutApiException
+from ghostcut_sdk.client import BaseGhostcutApi, GhostcutApiException
+from ghostcut_sdk.ghostcut_type.image import (
+    ImageTranslateRequest,
+    ApplyAuthCodeRequest,
+)
+from ghostcut_sdk.config.path import (
+    EDITOR_BASE_URL,
+    VE_IMAGE_TRANSLATE_PATH,
+    VE_IMAGE_TRANSLATE_QUERY_PATH,
+    VE_IMAGE_TRANSLATE_AUTH_APPLY_PATH,
+    VE_IMAGE_TRANSLATE_REDO_PATH,
+)
+
+
+"""
+5. AI图片相关API 调用示例
+https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-WtRQdwT2xoVyUOxiN98ck8k1nVf
+"""
 
 
 class ImageAPI:
@@ -23,120 +35,89 @@ class ImageAPI:
 
     def translate(
         self,
-        download_info: Union[str, Dict[str, str]],
-        translate_on: int,
-        src_lang: str,
-        tgt_lang: Union[str, None],
-        synthesis_on: int = 1,
-        commodity_filter_on: int = 0,
-        callback: Optional[str] = None,
-        extra_options: Optional[Dict[str, Any]] = None,
+        request: Union[ImageTranslateRequest, Dict[str, Any]],
     ) -> int:
         """
-        创建图片处理任务（异步）
+        create image translate task, will return task id.
+        You can use task id to query task status and result.
 
-        :param download_info: 图片URL字符串或dict，如{"url":"http://..."}。注意要转成json字符串。
-        :param translate_on: 是否开启翻译，0关闭，1开启
-        :param src_lang: 源语言代码，如"zh"
-        :param tgt_lang: 目标语言代码，如"en"，仅擦除时可传空字符串或None
-        :param synthesis_on: 是否开启图片合成，默认开启1
-        :param commodity_filter_on: 是否开启商品文字保护，默认关闭0
-        :param callback: 回调url，可不传
-        :param extra_options: 额外配置，如字体等，字典格式
-        :return: 图片任务ID（long）
-        :raises: GhostcutApiException
+        Args:
+            request (Union[ImageTranslateRequest, Dict[str, Any]]): image translate request
+
+        Raises:
+            GhostcutApiException: if create task failed
+
+        Returns:
+            int: task id
         """
-        path = "/ve/image/translate"
-
-        # 参数downloadInfo必须是符合JSON格式的字符串
-        if isinstance(download_info, dict):
-            download_info_str = json.dumps(download_info, ensure_ascii=False)
-        elif isinstance(download_info, str):
-            try:
-                # 校验是否为json字符串
-                json.loads(download_info)
-                download_info_str = download_info
-            except Exception:
-                # 若不是json字符串，尝试封装成json字符串
-                download_info_str = json.dumps({"url": download_info}, ensure_ascii=False)
-        else:
-            raise ValueError("download_info必须为字符串或dict")
-
-        params = {
-            "downloadInfo": download_info_str,
-            "translateOn": translate_on,
-            "srcLang": src_lang,
-            "tgtLang": tgt_lang if tgt_lang else "",
-            "synthesisOn": synthesis_on,
-            "commodityFilterOn": commodity_filter_on,
-        }
-        if callback:
-            params["callback"] = callback
-        if extra_options:
-            # 额外参数需字符串格式传递
-            # extraOptions字段是JSON字符串
-            if isinstance(extra_options, dict):
-                params["extraOptions"] = json.dumps(extra_options, ensure_ascii=False)
-            elif isinstance(extra_options, str):
-                params["extraOptions"] = extra_options
-
-        body = self.client.post(path, params)
+        if isinstance(request, Dict):
+            request = ImageTranslateRequest(**request)
+        body = self.client.post(
+            VE_IMAGE_TRANSLATE_PATH,
+            request.model_dump(by_alias=True, exclude_none=True),
+        )
         # 返回body为任务ID
         if not isinstance(body, (int, float)):
             raise GhostcutApiException(-1, "创建任务接口返回异常，期待任务ID")
         return int(body)
 
-    def query_task(self, task_id: int) -> dict:
+    def query_task(self, task_id: int) -> Dict:
         """
-        查询图片处理任务状态及结果
+        query image translate task status and result
 
-        :param task_id: 图片任务ID
-        :return: 接口返回body字典，包含status、result等字段
-        :raises: GhostcutApiException
+        Args:
+            task_id (int): task id
+
+        Raises:
+            GhostcutApiException: if query task failed
+
+        Returns:
+            dict: task status and result
         """
-        path = "/ve/image/translate/query"
-        params = {"id": task_id}
-        body = self.client.post(path, params)
+        body = self.client.post(VE_IMAGE_TRANSLATE_QUERY_PATH, {"id": task_id})
+        # TODO 返回的数据比较复杂，创建一个类来处理
         return body
 
-    def apply_auth_code(self, task_id: int, expire_seconds: int = 3600) -> Optional[str]:
+    def apply_auth_code(
+        self, request: Union[ApplyAuthCodeRequest, Dict[str, Any]]
+    ) -> Optional[str]:
         """
-        申请图片任务授权码，用于在线编辑器授权访问
+        apply image translate task auth code, for online editor access
 
-        :param task_id: 图片任务ID
-        :param expire_seconds: 授权码过期秒数，范围0~604800，默认3600秒
-        :return: 授权码字符串，失败返回None
-        :raises: GhostcutApiException
+        Args:
+            request (Union[ApplyAuthCodeRequest, Dict[str, Any]]): apply auth code request
+
+        Raises:
+            GhostcutApiException: if apply auth code failed
+
+        Returns:
+            Optional[str]: auth code string, None if failed
         """
-        path = "/ve/image/translate/auth/apply"
-        # 限制过期时间范围
-        expire = expire_seconds
-        if expire < 0 or expire > 604800:
-            expire = 3600
-        params = {
-            "id": task_id,
-            "expireSeconds": expire,
-        }
-        body = self.client.post(path, params)
+        if isinstance(request, Dict):
+            request = ApplyAuthCodeRequest(**request)
+        body = self.client.post(
+            VE_IMAGE_TRANSLATE_AUTH_APPLY_PATH,
+            request.model_dump(by_alias=True, exclude_none=True),
+        )
         # body是授权码字符串或null
-        if body is None:
-            return None
-        return str(body)
+        return str(body) if body else None
 
-    def get_editor_url(self, auth_code: str, lang: str = "zh", show_logo: bool = True) -> str:
+    def get_editor_url(
+        self, auth_code: str, lang: str = "zh", show_logo: bool = True
+    ) -> str:
         """
-        根据授权码拼接精修编辑器URL
+        generate editor url with auth code
 
-        :param auth_code: 授权码
-        :param lang: 编辑器语言，如"zh"或"en"
-        :param show_logo: 是否显示GhostCut logo，False时加上&PURE
-        :return: 编辑器完整URL字符串
+        Args:
+            auth_code (str): auth code
+            lang (str, optional): editor language, e.g. "zh" or "en". Defaults to "zh".
+            show_logo (bool, optional): whether to show GhostCut logo, False will add &PURE. Defaults to True.
+
+        Returns:
+            str: editor url
         """
-        base_url = "https://editor.jollytoday.com/"
-        url = f"{base_url}?l={lang}&c={auth_code}"
-        if not show_logo:
-            url += "&PURE"
-        return url
+        extra = "" if show_logo else "&PURE"
+        return f"{EDITOR_BASE_URL}?l={lang}&c={auth_code}{extra}"
 
     def redo_task(self, task_id: int, result_json: Union[str, dict]) -> int:
         """
@@ -147,7 +128,6 @@ class ImageAPI:
         :return: 1表示任务已正常发起
         :raises: GhostcutApiException
         """
-        path = "/ve/image/translate/redo"
         if isinstance(result_json, dict):
             result_str = json.dumps(result_json, ensure_ascii=False)
         elif isinstance(result_json, str):
@@ -160,11 +140,8 @@ class ImageAPI:
         else:
             raise ValueError("result_json参数必须是json字符串或dict")
 
-        params = {
-            "id": task_id,
-            "result": result_str
-        }
-        body = self.client.post(path, params)
+        params = {"id": task_id, "result": result_str}
+        body = self.client.post(VE_IMAGE_TRANSLATE_REDO_PATH, params)
         if not isinstance(body, (int, float)):
             raise GhostcutApiException(-1, "重新合成接口返回异常")
         return int(body)
