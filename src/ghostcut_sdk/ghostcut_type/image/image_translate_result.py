@@ -1,6 +1,6 @@
 from typing import Optional, List, Tuple, Literal
 from pydantic import BaseModel, Field
-
+from ghostcut_sdk.ghostcut_type.ghostcut_base_model import GhostcutBaseModel
 
 TextStyleAlignment = Literal["left", "center", "right"]
 
@@ -71,7 +71,7 @@ class MetaDataItem(BaseModel):
     )
 
 
-class ImageTranslateResult(BaseModel):
+class ImageTranslateResult(GhostcutBaseModel):
     meta_data: List[MetaDataItem] = Field(default_factory=list, description="meta data")
     output_osskey: Optional[str] = Field(default=None, description="output osskey")
     output_url: Optional[str] = Field(default=None, description="output url")

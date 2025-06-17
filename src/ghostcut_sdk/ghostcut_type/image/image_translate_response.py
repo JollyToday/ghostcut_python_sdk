@@ -1,13 +1,13 @@
 import json
 from typing import Union
 from pydantic import Field, field_validator
-from ghostcut_sdk.ghostcut_type.ghostcut_base_model import GhostcutBaseModel
+from ghostcut_sdk.ghostcut_type.ghostcut_base_model import PopulateByNameGhostcutBaseModel
 from ghostcut_sdk.ghostcut_type.error_info import ErrorInfo
 from .image_translate_result import ImageTranslateResult
 from .download_info import DownloadInfo
 
 
-class TaskStatusEnum(GhostcutBaseModel):
+class TaskStatusEnum(PopulateByNameGhostcutBaseModel):
     """任务状态枚举"""
 
     code: int = Field(..., description="状态码")
@@ -16,7 +16,7 @@ class TaskStatusEnum(GhostcutBaseModel):
     description_pt: str = Field(alias="descriptionPt", description="葡萄牙语描述")
 
 
-class ImageTranslateResponse(GhostcutBaseModel):
+class ImageTranslateResponse(PopulateByNameGhostcutBaseModel):
     """Image translation response"""
 
     app: str = Field(..., description="Application identifier")

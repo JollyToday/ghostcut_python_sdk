@@ -1,6 +1,6 @@
 from typing import Optional
 from pydantic import BaseModel, Field, model_validator, field_validator
-from ghostcut_sdk.ghostcut_type.ghostcut_base_model import GhostcutBaseModel
+from ghostcut_sdk.ghostcut_type.ghostcut_base_model import PopulateByNameGhostcutBaseModel
 from .download_info import DownloadInfo
 
 
@@ -8,7 +8,7 @@ class ImageExtraOptions(BaseModel):
     font_family: str
 
 
-class ImageTranslateRequest(GhostcutBaseModel):
+class ImageTranslateRequest(PopulateByNameGhostcutBaseModel):
     url: Optional[str] = Field(default=None, description="image url", exclude=True)
     src_lang: str = Field(description="source language", alias="srcLang")
     tgt_lang: str = Field(description="target language", alias="tgtLang")

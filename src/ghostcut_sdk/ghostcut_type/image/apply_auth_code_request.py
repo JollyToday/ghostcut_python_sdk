@@ -1,8 +1,8 @@
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from ghostcut_sdk.ghostcut_type.ghostcut_base_model import GhostcutBaseModel
+from ghostcut_sdk.ghostcut_type.ghostcut_base_model import PopulateByNameGhostcutBaseModel
 
 
-class ApplyAuthCodeRequest(GhostcutBaseModel):
+class ApplyAuthCodeRequest(PopulateByNameGhostcutBaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     id: int = Field(description="task id", alias="id")

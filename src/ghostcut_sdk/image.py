@@ -1,10 +1,10 @@
-import json
 from typing import Optional, Union, Dict, Any
 from ghostcut_sdk.client import BaseGhostcutApi, GhostcutApiException
 from ghostcut_sdk.ghostcut_type.image import (
     ImageTranslateRequest,
     ApplyAuthCodeRequest,
     ImageTranslateResponse,
+    ImageTranslateResult,
 )
 from ghostcut_sdk.config.path import (
     DEFAULT_BASE_URL,
@@ -117,28 +117,23 @@ class ImageAPI(BaseGhostcutApi):
         extra = "" if show_logo else "&PURE"
         return f"{EDITOR_BASE_URL}?l={lang}&c={auth_code}{extra}"
 
-    def redo_task(self, task_id: int, result_json: Union[str, dict]) -> int:
+    def redo_task(self, task_id: int, modified_result: ImageTranslateResult) -> int:
         """
-        修改翻译结果重新合成（异步）
+        modify image translate task result and resynthesize
 
-        :param task_id: 任务ID
-        :param result_json: 修改后的result字段，json字符串或dict形式
-        :return: 1表示任务已正常发起
-        :raises: GhostcutApiException
+        Args:
+            task_id (int): task id
+            modified_result (ImageTranslateResult): modified result
+
+        Raises:
+            ValueError: if modified_result is not a valid json string or dict
+            GhostcutApiException: if redo task failed
+
+        Returns:
+            int: whether redo task is normal, 1 means normal, other means failed
         """
-        if isinstance(result_json, dict):
-            result_str = json.dumps(result_json, ensure_ascii=False)
-        elif isinstance(result_json, str):
-            # 尝试解析确认是合法json字符串
-            try:
-                json.loads(result_json)
-            except Exception as e:
-                raise ValueError(f"result_json不是合法的json字符串: {e}")
-            result_str = result_json
-        else:
-            raise ValueError("result_json参数必须是json字符串或dict")
 
-        params = {"id": task_id, "result": result_str}
+        params = {"id": task_id, "result": modified_result.to_json()}
         body = self.post(VE_IMAGE_TRANSLATE_REDO_PATH, params)
         if not isinstance(body, (int, float)):
             raise GhostcutApiException(-1, "重新合成接口返回异常")
