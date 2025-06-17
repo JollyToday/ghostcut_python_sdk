@@ -8,15 +8,15 @@ class GhostcutApi(BaseGhostcutApi):
     """
     Ghostcut API
     >>> from ghostcut_sdk import GhostcutApi
-    >>> app_key = "" # this is your app key
-    >>> app_secret = "" # this is your app secret
+    >>> app_key = "replace with your app key"
+    >>> app_secret = "replace with your app secret"
     >>> api = GhostcutApi(app_key, app_secret)
     >>> api.common.query_enum("ProcessStatus")
     
     or config your app_key and app_secret in environment variables
     >>> import os
-    >>> os.environ["GHOSTCUT_APP_KEY"] = "" # this is your app key
-    >>> os.environ["GHOSTCUT_APP_SECRET"] = "" # this is your app secret
+    >>> os.environ["GHOSTCUT_APP_KEY"] = "replace with your app key"
+    >>> os.environ["GHOSTCUT_APP_SECRET"] = "replace with your app secret"
     >>> api = GhostcutApi()
     >>> api.common.query_enum("ProcessStatus")
     """
