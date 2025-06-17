@@ -1,14 +1,11 @@
 from typing import Optional
 from pydantic import BaseModel, Field, model_validator, field_validator
 from ghostcut_sdk.ghostcut_type.ghostcut_base_model import GhostcutBaseModel
+from .download_info import DownloadInfo
 
 
 class ImageExtraOptions(BaseModel):
     font_family: str
-
-
-class DownloadInfo(BaseModel):
-    url: str
 
 
 class ImageTranslateRequest(GhostcutBaseModel):

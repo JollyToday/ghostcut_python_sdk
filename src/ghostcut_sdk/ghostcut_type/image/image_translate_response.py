@@ -2,7 +2,9 @@ import json
 from typing import Union
 from pydantic import Field, field_validator
 from ghostcut_sdk.ghostcut_type.ghostcut_base_model import GhostcutBaseModel
+from ghostcut_sdk.ghostcut_type.error_info import ErrorInfo
 from .image_translate_result import ImageTranslateResult
+from .download_info import DownloadInfo
 
 
 class TaskStatusEnum(GhostcutBaseModel):
@@ -12,15 +14,6 @@ class TaskStatusEnum(GhostcutBaseModel):
     description: str = Field(..., description="中文描述")
     description_en: str = Field(alias="descriptionEn", description="英文描述")
     description_pt: str = Field(alias="descriptionPt", description="葡萄牙语描述")
-
-
-class DownloadInfo(GhostcutBaseModel):
-    """下载信息"""
-
-    url: str = Field(..., description="下载URL")
-    file_name: str = Field(alias="fileName", description="文件名")
-    id: int = Field(..., description="文件ID")
-    material_name: str = Field(alias="materialName", description="素材名称")
 
 
 class ImageTranslateResponse(GhostcutBaseModel):
@@ -34,8 +27,8 @@ class ImageTranslateResponse(GhostcutBaseModel):
     company: str = Field(..., description="Company identifier")
     ctime: int = Field(..., description="Creation timestamp")
     deleted: int = Field(..., description="Delete flag")
-    download_info: str = Field(
-        alias="downloadInfo", description="Download info JSON string"
+    download_info: DownloadInfo = Field(
+        alias="downloadInfo", description="Download info"
     )
     examine_status: str = Field(alias="examineStatus", description="Review status")
     extra_options: str = Field(alias="extraOptions", description="Extra options")
@@ -51,7 +44,9 @@ class ImageTranslateResponse(GhostcutBaseModel):
     )
     paid_point: float = Field(alias="paidPoint", description="Paid points")
     # priority: int = Field(..., description="Priority")
-    result: ImageTranslateResult = Field(..., description="Translation result")
+    result: Union[ImageTranslateResult, ErrorInfo] = Field(
+        ..., description="Translation result"
+    )
     src_lang: str = Field(alias="srcLang", description="Source language, e.g. 'zh'")
     status: int = Field(..., description="Task status")
     synthesis_on: int = Field(alias="synthesisOn", description="Synthesis switch")
@@ -65,18 +60,28 @@ class ImageTranslateResponse(GhostcutBaseModel):
     @field_validator("result", mode="before")
     @classmethod
     def validate_result(
-        cls, v: Union[str, ImageTranslateResult]
-    ) -> ImageTranslateResult:
+        cls, v: Union[str, ImageTranslateResult, ErrorInfo]
+    ) -> Union[ImageTranslateResult, ErrorInfo]:
         """验证并转换result字段"""
-        if isinstance(v, ImageTranslateResult):
+        if isinstance(v, (ImageTranslateResult, ErrorInfo)):
             return v
         elif isinstance(v, str):
             try:
                 data = json.loads(v)
-                return ImageTranslateResult(**data)
+                if "error" in data:
+                    return ErrorInfo(**data)
+                else:
+                    return ImageTranslateResult(**data)
             except (json.JSONDecodeError, ValueError) as e:
                 raise ValueError(f"Invalid result JSON string: {e}")
         else:
             raise ValueError(
                 "result must be a JSON string or ImageTranslateResult object"
             )
+
+    @field_validator("download_info", mode="before")
+    @classmethod
+    def validate_download_info(cls, v: str) -> DownloadInfo:
+        if isinstance(v, str):
+            return DownloadInfo(**json.loads(v))
+        return v

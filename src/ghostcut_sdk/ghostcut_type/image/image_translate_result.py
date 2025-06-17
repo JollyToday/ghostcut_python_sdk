@@ -20,7 +20,7 @@ class TextStyle(BaseModel):
     alignment: TextStyleAlignment = Field(..., description="Text alignment")
     font_size: int = Field(..., description="Font size of source text")
     trans_font_size: int = Field(..., description="Font size of translated text")
-    stroke_width: int = Field(..., description="Stroke width")
+    stroke_width: Optional[int] = Field(default=None, description="Stroke width")
 
 
 class AvailableBound(BaseModel):

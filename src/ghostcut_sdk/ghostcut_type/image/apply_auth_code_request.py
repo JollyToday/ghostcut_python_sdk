@@ -2,14 +2,6 @@ from pydantic import BaseModel, Field, field_validator, ConfigDict
 from ghostcut_sdk.ghostcut_type.ghostcut_base_model import GhostcutBaseModel
 
 
-class ImageExtraOptions(BaseModel):
-    font_family: str
-
-
-class DownloadInfo(BaseModel):
-    url: str
-
-
 class ApplyAuthCodeRequest(GhostcutBaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
