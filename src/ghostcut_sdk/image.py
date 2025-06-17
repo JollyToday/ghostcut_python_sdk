@@ -4,6 +4,7 @@ from ghostcut_sdk.client import BaseGhostcutApi, GhostcutApiException
 from ghostcut_sdk.ghostcut_type.image import (
     ImageTranslateRequest,
     ApplyAuthCodeRequest,
+    ImageTranslateResponse,
 )
 from ghostcut_sdk.config.path import (
     DEFAULT_BASE_URL,
@@ -22,15 +23,6 @@ https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-WtRQdwT2xoVy
 
 
 class ImageAPI(BaseGhostcutApi):
-    """
-    AI图片相关API封装：
-    - 创建图片处理任务（擦除/翻译）
-    - 查询任务结果
-    - 申请编辑授权码
-    - 获取编辑器URL
-    - 重新提交翻译结果进行合成
-    """
-
     def __init__(
         self,
         app_key: Optional[str] = None,
@@ -67,7 +59,7 @@ class ImageAPI(BaseGhostcutApi):
             raise GhostcutApiException(-1, "创建任务接口返回异常，期待任务ID")
         return int(body)
 
-    def query_task(self, task_id: int) -> Dict:
+    def query_task(self, task_id: int) -> ImageTranslateResponse:
         """
         query image translate task status and result
 
@@ -80,9 +72,9 @@ class ImageAPI(BaseGhostcutApi):
         Returns:
             dict: task status and result
         """
-        body = self.post(VE_IMAGE_TRANSLATE_QUERY_PATH, {"id": task_id})
-        # TODO 返回的数据比较复杂，创建一个类来处理
-        return body
+        return ImageTranslateResponse(
+            **self.post(VE_IMAGE_TRANSLATE_QUERY_PATH, {"id": task_id})
+        )
 
     def apply_auth_code(
         self, request: Union[ApplyAuthCodeRequest, Dict[str, Any]]
