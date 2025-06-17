@@ -2,7 +2,7 @@
 import json
 from typing import Optional, Union, List, Dict, Any
 from ghostcut_sdk.exceptions import GhostcutApiException
-from ghostcut_sdk.client import BaseGhostcutApi
+from ghostcut_sdk.api_base import BaseGhostcutApi
 
 # 4. AI视频相关API 调用示例
 # https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-HwKldyKEUoRGMnxgGTycUamRn0c

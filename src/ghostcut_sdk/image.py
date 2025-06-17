@@ -1,18 +1,18 @@
 from typing import Optional, Union, Dict, Any
-from ghostcut_sdk.client import BaseGhostcutApi, GhostcutApiException
+from ghostcut_sdk.api_base import BaseGhostcutApi, GhostcutApiException
 from ghostcut_sdk.ghostcut_type.image import (
     ImageTranslateRequest,
     ApplyAuthCodeRequest,
     ImageTranslateResponse,
     ImageTranslateResult,
 )
-from ghostcut_sdk.config.path import (
+from ghostcut_sdk.config.url import (
     DEFAULT_BASE_URL,
     EDITOR_BASE_URL,
-    VE_IMAGE_TRANSLATE_PATH,
-    VE_IMAGE_TRANSLATE_QUERY_PATH,
-    VE_IMAGE_TRANSLATE_AUTH_APPLY_PATH,
-    VE_IMAGE_TRANSLATE_REDO_PATH,
+    IMAGE_TRANSLATE_PATH,
+    IMAGE_QUERY_TASK_PATH,
+    IMAGE_APPLY_QUTH_CODE_PATH,
+    IMAGE_REDO_TASK_PATH,
 )
 
 
@@ -22,7 +22,7 @@ https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-WtRQdwT2xoVy
 """
 
 
-class ImageAPI(BaseGhostcutApi):
+class ImageApi(BaseGhostcutApi):
     def __init__(
         self,
         app_key: Optional[str] = None,
@@ -50,8 +50,8 @@ class ImageAPI(BaseGhostcutApi):
         """
         if isinstance(request, Dict):
             request = ImageTranslateRequest(**request)
-        body = self.client.post(
-            VE_IMAGE_TRANSLATE_PATH,
+        body = self.post(
+            IMAGE_TRANSLATE_PATH,
             request.model_dump(by_alias=True, exclude_none=True),
         )
         # 返回body为任务ID
@@ -73,7 +73,7 @@ class ImageAPI(BaseGhostcutApi):
             dict: task status and result
         """
         return ImageTranslateResponse(
-            **self.post(VE_IMAGE_TRANSLATE_QUERY_PATH, {"id": task_id})
+            **self.post(IMAGE_QUERY_TASK_PATH, {"id": task_id})
         )
 
     def apply_auth_code(
@@ -94,7 +94,7 @@ class ImageAPI(BaseGhostcutApi):
         if isinstance(request, Dict):
             request = ApplyAuthCodeRequest(**request)
         body = self.post(
-            VE_IMAGE_TRANSLATE_AUTH_APPLY_PATH,
+            IMAGE_APPLY_QUTH_CODE_PATH,
             request.model_dump(by_alias=True, exclude_none=True),
         )
         # body是授权码字符串或null
@@ -134,7 +134,7 @@ class ImageAPI(BaseGhostcutApi):
         """
 
         params = {"id": task_id, "result": modified_result.to_json()}
-        body = self.post(VE_IMAGE_TRANSLATE_REDO_PATH, params)
+        body = self.post(IMAGE_REDO_TASK_PATH, params)
         if not isinstance(body, (int, float)):
             raise GhostcutApiException(-1, "重新合成接口返回异常")
         return int(body)

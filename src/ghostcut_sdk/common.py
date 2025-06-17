@@ -1,21 +1,21 @@
 # 3. 基础API 调用示例
 # https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-Mimndtw9NoMllNx09Ruc6V9nnEe
 from typing import Optional, Dict, List, Literal, Union, Any
-from ghostcut_sdk.config.path import (
+from ghostcut_sdk.config.url import (
     DEFAULT_BASE_URL,
-    CREATE_SUB_USER_PATH,
-    QUERY_ENUM_PATH,
-    QUERY_BALANCE_PATH,
-    QUERY_TTS_VOICE_LIST_PATH,
-    QUERY_NATURAL_VOICE_LIST_PATH,
-    UPLOAD_LOCAL_FILE_PATH,
+    COMMON_CREATE_SUB_USER_PATH,
+    COMMON_QUERY_ENUM_PATH,
+    COMMON_QUERY_BALANCE_PATH,
+    COMMON_QUERY_TTS_VOICE_LIST_PATH,
+    COMMON_QUERY_NATURAL_VOICE_LIST_PATH,
+    COMMON_UPLOAD_LOCAL_FILE_PATH,
 )
 from ghostcut_sdk.ghostcut_type.common import (
     TtsVoiceItem,
     NaturalVoiceItem,
     CreateSubUserRequest,
 )
-from ghostcut_sdk.client import BaseGhostcutApi
+from ghostcut_sdk.api_base import BaseGhostcutApi
 from ghostcut_sdk.exceptions import GhostcutApiException
 from ghostcut_sdk.ghostcut_type.common.point_asset import PointAsset
 
@@ -45,10 +45,7 @@ class CommonApi(BaseGhostcutApi):
         self,
         request: Union[CreateSubUserRequest, Dict[str, Any]],
     ) -> str:
-        path = CREATE_SUB_USER_PATH
-        params = {}
-
-        body = self.post(path, request.to_dict())
+        body = self.post(COMMON_CREATE_SUB_USER_PATH, request.to_dict())
         uid = body.get("uid")
         if not uid:
             raise GhostcutApiException(-1, "创建子用户接口未返回uid")
@@ -65,10 +62,9 @@ class CommonApi(BaseGhostcutApi):
         :return: 枚举列表，每个元素为dict，包含code、description等信息
         """
         # 该接口不走网关，需要单独请求。根据文档地址：
-        path = QUERY_ENUM_PATH
         params = {"text": text}
 
-        return self.post(path, params, use_auth=False)
+        return self.post(COMMON_QUERY_ENUM_PATH, params, use_auth=False)
 
     def query_balance(
         self, not_zero: bool = False, is_valid: bool = False
@@ -80,7 +76,7 @@ class CommonApi(BaseGhostcutApi):
         :param is_valid: 是否仅包含未过期的资产，默认False
         :return: pointAssets列表及余额详情字典
         """
-        path = QUERY_BALANCE_PATH
+        path = COMMON_QUERY_BALANCE_PATH
         params = {}
         if not_zero:
             params["notZero"] = True
@@ -99,7 +95,7 @@ class CommonApi(BaseGhostcutApi):
         :return: 声音列表数组
         """
         params = {"isAdvanced": 1 if is_advanced else 0}
-        body = self.post(QUERY_TTS_VOICE_LIST_PATH, params)
+        body = self.post(COMMON_QUERY_TTS_VOICE_LIST_PATH, params)
         # body 可能是音色列表数组
         return [TtsVoiceItem(**item) for item in body]
 
@@ -125,7 +121,7 @@ class CommonApi(BaseGhostcutApi):
         }
         return [
             NaturalVoiceItem(**item)
-            for item in self.post(QUERY_NATURAL_VOICE_LIST_PATH, params)
+            for item in self.post(COMMON_QUERY_NATURAL_VOICE_LIST_PATH, params)
         ]
 
     def upload_local_file(self, file_path: str) -> Dict:
@@ -139,7 +135,7 @@ class CommonApi(BaseGhostcutApi):
         :param file_path: 本地文件路径
         :return: 上传结果dict，含返回的文件标识等
         """
-        path = UPLOAD_LOCAL_FILE_PATH
+        path = COMMON_UPLOAD_LOCAL_FILE_PATH
         with open(file_path, "rb") as fp:
             files = {"file": fp}
             body = self.post(path, files=files)

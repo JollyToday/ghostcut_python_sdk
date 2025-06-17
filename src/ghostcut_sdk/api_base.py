@@ -1,11 +1,10 @@
 import os
-import time
 import json
 import hashlib
 import requests
 import logging
 from typing import Optional, Dict, Any, Union, List
-from ghostcut_sdk.config.path import DEFAULT_BASE_URL
+from ghostcut_sdk.config.url import DEFAULT_BASE_URL
 from ghostcut_sdk.exceptions import GhostcutApiException
 
 ZL_LOGGER = logging.getLogger(__name__)

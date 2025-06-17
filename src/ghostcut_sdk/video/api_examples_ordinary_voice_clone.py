@@ -1,6 +1,6 @@
 import json
 from typing import List, Optional, Dict, Any
-from  ghostcut_sdk.client import BaseGhostcutApi
+from  ghostcut_sdk.api_base import BaseGhostcutApi
 
 
 class OrdinaryVoiceCloneAPI:

@@ -4,7 +4,7 @@
 # https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-MEiqdbIeGoWUE8xDq4jclw38nDf
 import json
 from typing import List, Optional, Dict, Any
-from  ghostcut_sdk.client import BaseGhostcutApi,GhostcutApiException
+from  ghostcut_sdk.api_base import BaseGhostcutApi,GhostcutApiException
 
 
 class VoiceCloneAPI:
