@@ -20,7 +20,7 @@ class BaseGhostcutApi:
     ):
         self.app_id = app_id if app_id else os.environ.get("GHOSTCUT_APP_ID")
         self.app_secret = (
-            app_secret if app_secret else os.environ.get("GHOSTCUT_SECRET")
+            app_secret if app_secret else os.environ.get("GHOSTCUT_APP_SECRET")
         )
         if self.app_id is None or self.app_secret is None:
             raise ValueError("app id or secret is not supplied")
@@ -72,11 +72,11 @@ class BaseGhostcutApi:
 
     def _sign(self, params: Dict[str, Any]) -> str:
         """
-        生成签名，规则：
-        - 排序参数(按key字母序)
-        - 拼接key=value&key2=value2...
-        - 拼接后添加appSecret
-        - MD5加密（小写）
+        Generate signature, rules:
+        - Sort parameters (by key in alphabetical order)
+        - Concatenate as key=value&key2=value2...
+        - Append appSecret after concatenation
+        - MD5 encryption (lowercase)
         """
         sorted_items = sorted(params.items())
         sign_str = "&".join(f"{k}={v}" for k, v in sorted_items)

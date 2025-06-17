@@ -10,7 +10,7 @@ from ghostcut_sdk.config.path import (
     QUERY_NATURAL_VOICE_LIST_PATH,
     UPLOAD_LOCAL_FILE_PATH,
 )
-from ghostcut_sdk.types import IsAdvanced
+from ghostcut_sdk.ghostcut_type import IsAdvanced
 from ghostcut_sdk.client import BaseGhostcutApi
 from ghostcut_sdk.exceptions import GhostcutApiException
 
@@ -19,13 +19,19 @@ AvailableEnumText = Literal[
     "ProcessStatus", "sourceLang", "Lang", "ImageTaskStatus", "musicRegion"
 ]
 
+# TODO 使用pydantic定义返回的类型
+# TODO 英文注释
 
 class CommonApi(BaseGhostcutApi):
     """
     基础API接口封装
     """
-
-    def __init__(self, app_id: str, app_secret: str, base_url: str = DEFAULT_BASE_URL):
+    def __init__(
+        self,
+        app_id: Optional[str] = None,
+        app_secret: Optional[str] = None,
+        base_url: str = DEFAULT_BASE_URL,
+    ):
         super().__init__(app_id, app_secret, base_url)
 
     def create_sub_user(
@@ -80,9 +86,7 @@ class CommonApi(BaseGhostcutApi):
         params = {"text": text}
         return self.post(path, params, use_auth=False)
 
-    def query_balance(
-        self, not_zero: Optional[bool] = False, is_valid: Optional[bool] = False
-    ) -> dict:
+    def query_balance(self, not_zero: bool = False, is_valid: bool = False) -> Dict:
         """
         3.3 查询余额
 
@@ -101,7 +105,7 @@ class CommonApi(BaseGhostcutApi):
         body = self.post(path, params or {})
         return body
 
-    def query_tts_voice_list(self, is_advanced: IsAdvanced = 0) -> list:
+    def query_tts_voice_list(self, is_advanced: IsAdvanced = 0) -> List:
         """
         3.5 获取TTS声音列表（基础/高级）
 
@@ -116,7 +120,9 @@ class CommonApi(BaseGhostcutApi):
         # body 可能是音色列表数组
         return body
 
-    def query_natural_voice_list(self, page_number: int, page_size: int = 20) -> dict:
+    def query_natural_voice_list(
+        self, page_number: int = 1, page_size: int = 20
+    ) -> Dict:
         """
         3.6 获取TTS声音列表（超真实）
 
@@ -133,7 +139,7 @@ class CommonApi(BaseGhostcutApi):
             params["pageSize"] = page_size
         return self.post(path, params)
 
-    def upload_local_file(self, file_path: str) -> Optional[Dict]:
+    def upload_local_file(self, file_path: str) -> Dict:
         """
         3.4 本地文件上传（您未提供具体接口说明，以下为常见实现示例）
         说明：
@@ -144,18 +150,7 @@ class CommonApi(BaseGhostcutApi):
         :return: 上传结果dict，含返回的文件标识等
         """
         path = UPLOAD_LOCAL_FILE_PATH
-        files = {"file": open(file_path, "rb")}
-        body = self.post(path, files=files)
+        with open(file_path, "rb") as fp:
+            files = {"file": fp}
+            body = self.post(path, files=files)
         return body
-
-
-if __name__ == "__main__":
-    IS_ADVANCED = Literal[0, 1]
-
-    def test(is_advanced: IS_ADVANCED):
-        print(is_advanced)
-
-    test(0)
-    test(1)
-    test(2)
-    test(100)
