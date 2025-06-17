@@ -1,6 +1,6 @@
 # 3. 基础API 调用示例
 # https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-Mimndtw9NoMllNx09Ruc6V9nnEe
-from typing import Optional, Dict, List, Literal
+from typing import Optional, Dict, List, Literal, Union, Any
 from ghostcut_sdk.config.path import (
     DEFAULT_BASE_URL,
     CREATE_SUB_USER_PATH,
@@ -10,7 +10,11 @@ from ghostcut_sdk.config.path import (
     QUERY_NATURAL_VOICE_LIST_PATH,
     UPLOAD_LOCAL_FILE_PATH,
 )
-from ghostcut_sdk.ghostcut_type.common import TtsVoiceItem, NaturalVoiceItem
+from ghostcut_sdk.ghostcut_type.common import (
+    TtsVoiceItem,
+    NaturalVoiceItem,
+    CreateSubUserRequest,
+)
 from ghostcut_sdk.client import BaseGhostcutApi
 from ghostcut_sdk.exceptions import GhostcutApiException
 from ghostcut_sdk.ghostcut_type.common.point_asset import PointAsset
@@ -39,37 +43,12 @@ class CommonApi(BaseGhostcutApi):
 
     def create_sub_user(
         self,
-        phone: Optional[str] = None,
-        mail: Optional[str] = None,
-        custom_identity: Optional[str] = None,
-        uname: Optional[str] = None,
+        request: Union[CreateSubUserRequest, Dict[str, Any]],
     ) -> str:
-        """
-        3.2 创建子用户
-
-        :param phone: 手机号，非必填
-        :param mail: 邮箱，非必填
-        :param custom_identity: 自定义唯一标识，非必填
-        :param uname: 用户昵称，非必填
-        :return: uid 子用户唯一标识
-        :raises: GhostcutApiException
-        """
-        # 至少phone/mail/custom_identity三者之一必须传入，校验
-        if not any([phone, mail, custom_identity]):
-            raise ValueError("phone、mail、custom_identity 三者至少传一个")
-
         path = CREATE_SUB_USER_PATH
         params = {}
-        if phone:
-            params["phone"] = phone
-        if mail:
-            params["mail"] = mail
-        if custom_identity:
-            params["customIdentity"] = custom_identity
-        if uname:
-            params["uname"] = uname
 
-        body = self.post(path, params)
+        body = self.post(path, request.to_dict())
         uid = body.get("uid")
         if not uid:
             raise GhostcutApiException(-1, "创建子用户接口未返回uid")
@@ -78,6 +57,7 @@ class CommonApi(BaseGhostcutApi):
     def query_enum(self, text: AvailableEnumText) -> Optional[List]:
         """
         3.1 查询枚举（无需签名）
+        TODO 无需加签
 
         说明: 此接口无需加签，调用时不需传appId、timestamp、sign。
 
@@ -87,6 +67,7 @@ class CommonApi(BaseGhostcutApi):
         # 该接口不走网关，需要单独请求。根据文档地址：
         path = QUERY_ENUM_PATH
         params = {"text": text}
+
         return self.post(path, params, use_auth=False)
 
     def query_balance(
@@ -149,6 +130,7 @@ class CommonApi(BaseGhostcutApi):
 
     def upload_local_file(self, file_path: str) -> Dict:
         """
+        TODO
         3.4 本地文件上传（您未提供具体接口说明，以下为常见实现示例）
         说明：
         - 具体上传接口地址、参数需根据实际文档补充
