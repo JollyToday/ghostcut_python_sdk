@@ -1,6 +1,6 @@
 from typing import List, Optional, Union, Dict, Any
 from pydantic import BaseModel, Field
-from ghostcut_sdk.ghostcut_type.literals import Resolution
+from ghostcut_sdk.ghostcut_type.video.literals import Resolution
 
 
 class GeneralVideoProcessOptions(BaseModel):
