@@ -1,9 +1,17 @@
 # 3. 基础API 调用示例
 # https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-Mimndtw9NoMllNx09Ruc6V9nnEe
-
-import requests
 from typing import Optional, Dict, List, Literal
-from ghostcut_sdk.client import BaseGhostcutClient
+from ghostcut_sdk.config.path import (
+    DEFAULT_BASE_URL,
+    CREATE_SUB_USER_PATH,
+    QUERY_ENUM_PATH,
+    QUERY_BALANCE_PATH,
+    QUERY_TTS_VOICE_LIST_PATH,
+    QUERY_NATURAL_VOICE_LIST_PATH,
+    UPLOAD_LOCAL_FILE_PATH,
+)
+from ghostcut_sdk.types import IsAdvanced
+from ghostcut_sdk.client import BaseGhostcutApi
 from ghostcut_sdk.exceptions import GhostcutApiException
 
 
@@ -12,14 +20,13 @@ AvailableEnumText = Literal[
 ]
 
 
-
-class CommonApi:
+class CommonApi(BaseGhostcutApi):
     """
     基础API接口封装
     """
 
-    def __init__(self, client: BaseGhostcutClient):
-        self.client = client
+    def __init__(self, app_id: str, app_secret: str, base_url: str = DEFAULT_BASE_URL):
+        super().__init__(app_id, app_secret, base_url)
 
     def create_sub_user(
         self,
@@ -42,7 +49,7 @@ class CommonApi:
         if not any([phone, mail, custom_identity]):
             raise ValueError("phone、mail、custom_identity 三者至少传一个")
 
-        path = "/ve/user/create"
+        path = CREATE_SUB_USER_PATH
         params = {}
         if phone:
             params["phone"] = phone
@@ -53,7 +60,7 @@ class CommonApi:
         if uname:
             params["uname"] = uname
 
-        body = self.client.post(path, params)
+        body = self.post(path, params)
         uid = body.get("uid")
         if not uid:
             raise GhostcutApiException(-1, "创建子用户接口未返回uid")
@@ -69,9 +76,9 @@ class CommonApi:
         :return: 枚举列表，每个元素为dict，包含code、description等信息
         """
         # 该接口不走网关，需要单独请求。根据文档地址：
-        path = "/enum/query2"
+        path = QUERY_ENUM_PATH
         params = {"text": text}
-        return self.client.post(path, params, use_auth=False)
+        return self.post(path, params, use_auth=False)
 
     def query_balance(
         self, not_zero: Optional[bool] = False, is_valid: Optional[bool] = False
@@ -83,7 +90,7 @@ class CommonApi:
         :param is_valid: 是否仅包含未过期的资产，默认False
         :return: pointAssets列表及余额详情字典
         """
-        path = "/ve/point/query"
+        path = QUERY_BALANCE_PATH
         params = {}
         if not_zero:
             params["notZero"] = True
@@ -91,28 +98,25 @@ class CommonApi:
             params["isValid"] = True
 
         # 空参数传空字典或空字符串均可，传params即可
-        body = self.client.post(path, params or {})
+        body = self.post(path, params or {})
         return body
 
-    def query_tts_voice_list(self, is_advanced: Optional[int] = 0) -> list:
+    def query_tts_voice_list(self, is_advanced: IsAdvanced = 0) -> list:
         """
         3.5 获取TTS声音列表（基础/高级）
 
         :param is_advanced: 0基础音色，1高级音色，默认0
         :return: 声音列表数组
         """
-        path = "/ve/tts/voice/list"
+        path = QUERY_TTS_VOICE_LIST_PATH
         params = {}
-        if is_advanced in (0, 1):
-            params["isAdvanced"] = is_advanced
+        params["isAdvanced"] = min(max(is_advanced, 0), 1)
 
-        body = self.client.post(path, params or {})
+        body = self.post(path, params or {})
         # body 可能是音色列表数组
         return body
 
-    def query_natural_voice_list(
-        self, page_number: int, page_size: Optional[int] = 20
-    ) -> dict:
+    def query_natural_voice_list(self, page_number: int, page_size: int = 20) -> dict:
         """
         3.6 获取TTS声音列表（超真实）
 
@@ -123,11 +127,11 @@ class CommonApi:
         if page_number < 1:
             raise ValueError("page_number必须>=1")
 
-        path = "/ve/voice/query_public_voice"
+        path = QUERY_NATURAL_VOICE_LIST_PATH
         params = {"pageNumber": page_number}
         if page_size and page_size > 0:
             params["pageSize"] = page_size
-        return self.client.post(path, params)
+        return self.post(path, params)
 
     def upload_local_file(self, file_path: str) -> Optional[Dict]:
         """
@@ -139,20 +143,19 @@ class CommonApi:
         :param file_path: 本地文件路径
         :return: 上传结果dict，含返回的文件标识等
         """
-        # 示例接口地址和参数，需替换成真实接口
-        path = "/ve/file/upload"
+        path = UPLOAD_LOCAL_FILE_PATH
         files = {"file": open(file_path, "rb")}
-        body = self.client.post(path, files=files)
+        body = self.post(path, files=files)
         return body
-
 
 
 if __name__ == "__main__":
     IS_ADVANCED = Literal[0, 1]
-    
+
     def test(is_advanced: IS_ADVANCED):
         print(is_advanced)
 
     test(0)
     test(1)
     test(2)
+    test(100)

@@ -1,2 +1,6 @@
+.env
+.venv
 .vscode
 __pycache__
+*.egg-info
+.cursorignore

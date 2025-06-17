@@ -4,11 +4,11 @@
 # https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-MEiqdbIeGoWUE8xDq4jclw38nDf
 import json
 from typing import List, Optional, Dict, Any
-from  ghostcut_sdk.client import BaseGhostcutClient,GhostcutApiException
+from  ghostcut_sdk.client import BaseGhostcutApi,GhostcutApiException
 
 
 class VoiceCloneAPI:
-    def __init__(self, client: BaseGhostcutClient):
+    def __init__(self, client: BaseGhostcutApi):
         self.client = client
 
     def create_incorporate_task(

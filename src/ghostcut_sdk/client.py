@@ -3,12 +3,11 @@ import time
 import hashlib
 import requests
 from typing import Optional, Dict, Any
+from ghostcut_sdk.config.path import DEFAULT_BASE_URL
 from ghostcut_sdk.exceptions import GhostcutApiException
 
-DEFAULT_BASE_URL = "https://api.zhaoli.com/v-w-c/gateway"
 
-
-class BaseGhostcutClient:
+class BaseGhostcutApi:
     """
     API基础客户端，负责请求签名和发送请求
     """
@@ -23,7 +22,7 @@ class BaseGhostcutClient:
         self.app_secret = (
             app_secret if app_secret else os.environ.get("GHOSTCUT_SECRET")
         )
-        if self.app_id is None or self.app_secret:
+        if self.app_id is None or self.app_secret is None:
             raise ValueError("app id or secret is not supplied")
         self.base_url = base_url.rstrip("/")
 
@@ -42,7 +41,7 @@ class BaseGhostcutClient:
 
         # 添加公共参数
         if use_auth:
-            params = params if params else dict()
+            params = params.copy() if params else dict()
             params["appId"] = self.app_id
             params["timestamp"] = int(time.time() * 1000)
             # 生成签名
@@ -71,7 +70,7 @@ class BaseGhostcutClient:
 
         return data.get("body")
 
-    def _sign(self, params: dict) -> str:
+    def _sign(self, params: Dict[str, Any]) -> str:
         """
         生成签名，规则：
         - 排序参数(按key字母序)

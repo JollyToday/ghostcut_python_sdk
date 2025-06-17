@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
 import json
 from typing import Optional, Union, List, Dict, Any
-from  ghostcut_sdk.client import BaseGhostcutClient,GhostcutApiException
+from ghostcut_sdk.exceptions import GhostcutApiException
+from ghostcut_sdk.client import BaseGhostcutApi
+
 # 4. AI视频相关API 调用示例
 # https://jollytoday.feishu.cn/docx/U73qdBhWbozFdpx4eTvcIO4gn7e#share-HwKldyKEUoRGMnxgGTycUamRn0c
 
 
+GENERAL_VIDEO_PROCESS_PATH = "/ve/work/free"
 
-class VideoAPI:
+
+class GeneralVideoProcessApi(BaseGhostcutApi):
     """
     AI视频相关API封装
     支持创建异步视频处理任务，查询任务状态
     """
 
-    def __init__(self, client: BaseGhostcutClient):
+    def __init__(self, client: BaseGhostcutApi):
         self.client = client
 
     def create_task(
@@ -121,7 +125,9 @@ class VideoAPI:
         if extra_options_dict:
             # 优先使用字典形式
             if isinstance(extra_options_dict, dict):
-                params["extraOptions"] = json.dumps(extra_options_dict, ensure_ascii=False)
+                params["extraOptions"] = json.dumps(
+                    extra_options_dict, ensure_ascii=False
+                )
             else:
                 raise ValueError("extra_options_dict必须是字典")
         elif extra_options:
@@ -141,7 +147,9 @@ class VideoAPI:
 
         if video_inpaint_masks is not None:
             if isinstance(video_inpaint_masks, list):
-                params["videoInpaintMasks"] = json.dumps(video_inpaint_masks, ensure_ascii=False)
+                params["videoInpaintMasks"] = json.dumps(
+                    video_inpaint_masks, ensure_ascii=False
+                )
             elif isinstance(video_inpaint_masks, str):
                 params["videoInpaintMasks"] = video_inpaint_masks
             else:

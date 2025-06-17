@@ -1,6 +1,6 @@
 import json
 from typing import List, Optional, Dict, Any
-from  ghostcut_sdk.client import BaseGhostcutClient
+from  ghostcut_sdk.client import BaseGhostcutApi
 
 
 class OrdinaryVoiceCloneAPI:
@@ -8,7 +8,7 @@ class OrdinaryVoiceCloneAPI:
     普通克隆接口封装
     """
 
-    def __init__(self, client: BaseGhostcutClient):
+    def __init__(self, client: BaseGhostcutApi):
         self.client = client
 
     def extract_voice_info(

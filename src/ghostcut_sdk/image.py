@@ -5,7 +5,7 @@
 
 import json
 from typing import Optional, Union, Dict, Any
-from  ghostcut_sdk.client import BaseGhostcutClient,GhostcutApiException
+from  ghostcut_sdk.client import BaseGhostcutApi,GhostcutApiException
 
 
 class ImageAPI:
@@ -18,7 +18,7 @@ class ImageAPI:
     - 重新提交翻译结果进行合成
     """
 
-    def __init__(self, client: BaseGhostcutClient):
+    def __init__(self, client: BaseGhostcutApi):
         self.client = client
 
     def translate(
