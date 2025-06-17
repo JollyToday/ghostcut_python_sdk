@@ -10,9 +10,10 @@ from ghostcut_sdk.config.path import (
     QUERY_NATURAL_VOICE_LIST_PATH,
     UPLOAD_LOCAL_FILE_PATH,
 )
-from ghostcut_sdk.ghostcut_type import IsAdvanced
+from ghostcut_sdk.ghostcut_type.common import TtsVoiceItem, NaturalVoiceItem
 from ghostcut_sdk.client import BaseGhostcutApi
 from ghostcut_sdk.exceptions import GhostcutApiException
+from ghostcut_sdk.ghostcut_type.common.point_asset import PointAsset
 
 
 AvailableEnumText = Literal[
@@ -22,10 +23,12 @@ AvailableEnumText = Literal[
 # TODO 使用pydantic定义返回的类型
 # TODO 英文注释
 
+
 class CommonApi(BaseGhostcutApi):
     """
     基础API接口封装
     """
+
     def __init__(
         self,
         app_key: Optional[str] = None,
@@ -86,7 +89,9 @@ class CommonApi(BaseGhostcutApi):
         params = {"text": text}
         return self.post(path, params, use_auth=False)
 
-    def query_balance(self, not_zero: bool = False, is_valid: bool = False) -> Dict:
+    def query_balance(
+        self, not_zero: bool = False, is_valid: bool = False
+    ) -> List[PointAsset]:
         """
         3.3 查询余额
 
@@ -103,26 +108,26 @@ class CommonApi(BaseGhostcutApi):
 
         # 空参数传空字典或空字符串均可，传params即可
         body = self.post(path, params or {})
-        return body
+        return [PointAsset(**item) for item in body]
 
-    def query_tts_voice_list(self, is_advanced: IsAdvanced = 0) -> List:
+    def query_tts_voice_list(self, is_advanced: bool = 0) -> List[TtsVoiceItem]:
         """
         3.5 获取TTS声音列表（基础/高级）
 
         :param is_advanced: 0基础音色，1高级音色，默认0
         :return: 声音列表数组
         """
-        path = QUERY_TTS_VOICE_LIST_PATH
-        params = {}
-        params["isAdvanced"] = min(max(is_advanced, 0), 1)
-
-        body = self.post(path, params or {})
+        params = {"isAdvanced": 1 if is_advanced else 0}
+        body = self.post(QUERY_TTS_VOICE_LIST_PATH, params)
         # body 可能是音色列表数组
-        return body
+        return [TtsVoiceItem(**item) for item in body]
 
     def query_natural_voice_list(
-        self, page_number: int = 1, page_size: int = 20
-    ) -> Dict:
+        self,
+        page_number: int = 1,
+        page_size: int = 20,
+        with_language_limit_voice: bool = False,
+    ) -> List[NaturalVoiceItem]:
         """
         3.6 获取TTS声音列表（超真实）
 
@@ -132,12 +137,15 @@ class CommonApi(BaseGhostcutApi):
         """
         if page_number < 1:
             raise ValueError("page_number必须>=1")
-
-        path = QUERY_NATURAL_VOICE_LIST_PATH
-        params = {"pageNumber": page_number}
-        if page_size and page_size > 0:
-            params["pageSize"] = page_size
-        return self.post(path, params)
+        params = {
+            "pageNumber": page_number,
+            "pageSize": page_size,
+            "withLanguageLimitVoice": with_language_limit_voice,
+        }
+        return [
+            NaturalVoiceItem(**item)
+            for item in self.post(QUERY_NATURAL_VOICE_LIST_PATH, params)
+        ]
 
     def upload_local_file(self, file_path: str) -> Dict:
         """

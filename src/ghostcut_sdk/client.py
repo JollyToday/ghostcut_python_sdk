@@ -4,7 +4,7 @@ import json
 import hashlib
 import requests
 import logging
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any, Union, List
 from ghostcut_sdk.config.path import DEFAULT_BASE_URL
 from ghostcut_sdk.exceptions import GhostcutApiException
 
@@ -45,7 +45,7 @@ class BaseGhostcutApi:
         params: Optional[Dict] = None,
         files: Optional[Dict] = None,
         timeout: float = 30,
-    ) -> Union[Dict[str, Any], str, int]:
+    ) -> Union[Dict[str, Any], List, str, int]:
         """
         发送POST请求，自动添加公共参数和签名
         """
