@@ -19,7 +19,6 @@ class BaseGhostcutApi:
         self,
         app_key: Optional[str] = None,
         app_secret: Optional[str] = None,
-        base_url: str = DEFAULT_BASE_URL,
     ):
         self.app_key = app_key if app_key else os.environ.get("GHOSTCUT_APP_KEY")
         self.app_secret = (
@@ -27,29 +26,49 @@ class BaseGhostcutApi:
         )
         if self.app_key is None or self.app_secret is None:
             raise ValueError("app id or secret is not supplied")
-        self.base_url = base_url.rstrip("/")
+        self.base_url = DEFAULT_BASE_URL.rstrip("/")
 
-    def _calc_sign(self, body: str) -> str:
-        md5_1 = hashlib.md5()
-        md5_1.update(body.encode("utf-8"))
-        body_md5hex = md5_1.hexdigest()
-        md5_2 = hashlib.md5()
-        body_md5hex = (body_md5hex + self.app_secret).encode("utf-8")
-        md5_2.update(body_md5hex)
-        return md5_2.hexdigest()
+    def post_without_sign(
+        self,
+        path: str,
+        params: Optional[Dict] = None,
+        timeout: float = 60,
+    ) -> Union[Dict[str, Any], List, str, int]:
+        """
+        发送POST请求，不添加签名
+        """
+        headers = {
+            "Content-Type": "application/json",
+        }
+        body = json.dumps(params)
+        try:
+            resp = requests.post(
+                self._create_url(path),
+                data=body,
+                headers=headers,
+                timeout=timeout,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as e:
+            raise GhostcutApiException(-1, f"请求异常: {e}")
+
+        code = data.get("code")
+        if code != 1000:
+            raise GhostcutApiException(code, data.get("msg", "未知错误"))
+        return data.get("body")
 
     def post(
         self,
         path: str,
         params: Optional[Dict] = None,
         files: Optional[Dict] = None,
-        timeout: float = 30,
+        timeout: float = 60,
     ) -> Union[Dict[str, Any], List, str, int]:
         """
         发送POST请求，自动添加公共参数和签名
         """
         body = json.dumps(params)
-        url = self.base_url + path
         sign = self._calc_sign(body)
 
         headers = {
@@ -57,7 +76,7 @@ class BaseGhostcutApi:
             "AppKey": self.app_key,
             "AppSign": self._calc_sign(body),
         }
-
+        url = self._create_url(path)
         ZL_LOGGER.debug(f"Sending POST request to {url}")
         ZL_LOGGER.debug(f"Headers: {headers}")
         ZL_LOGGER.debug(f"Body: {body}")
@@ -65,7 +84,7 @@ class BaseGhostcutApi:
 
         try:
             resp = requests.post(
-                self.base_url + path,
+                url,
                 data=body,
                 headers=headers,
                 files=files,
@@ -80,3 +99,15 @@ class BaseGhostcutApi:
         if code != 1000:
             raise GhostcutApiException(code, data.get("msg", "未知错误"))
         return data.get("body")
+
+    def _calc_sign(self, body: str) -> str:
+        md5_1 = hashlib.md5()
+        md5_1.update(body.encode("utf-8"))
+        body_md5hex = md5_1.hexdigest()
+        md5_2 = hashlib.md5()
+        body_md5hex = (body_md5hex + self.app_secret).encode("utf-8")
+        md5_2.update(body_md5hex)
+        return md5_2.hexdigest()
+
+    def _create_url(self, path: str) -> str:
+        return self.base_url + path

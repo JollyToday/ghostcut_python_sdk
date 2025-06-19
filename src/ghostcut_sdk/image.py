@@ -27,9 +27,8 @@ class ImageApi(BaseGhostcutApi):
         self,
         app_key: Optional[str] = None,
         app_secret: Optional[str] = None,
-        base_url: str = DEFAULT_BASE_URL,
     ):
-        super().__init__(app_key, app_secret, base_url)
+        super().__init__(app_key, app_secret)
 
     def translate(
         self,

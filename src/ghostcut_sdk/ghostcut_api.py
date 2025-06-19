@@ -1,7 +1,6 @@
 from ghostcut_sdk.api_base import BaseGhostcutApi
 from ghostcut_sdk.basic import BasicApi
 from ghostcut_sdk.image import ImageApi
-from ghostcut_sdk.config.url import DEFAULT_BASE_URL
 
 
 class GhostcutApi(BaseGhostcutApi):
@@ -22,9 +21,10 @@ class GhostcutApi(BaseGhostcutApi):
     """
 
     def __init__(
-        self, app_key: str, app_secret: str, *, base_url: str = DEFAULT_BASE_URL
+        self, app_key: str, app_secret: str
     ):
-        super().__init__(app_key, app_secret, base_url)
-        self.basic = BasicApi(app_key, app_secret, base_url)
-        self.image = ImageApi(app_key, app_secret, base_url)
+        super().__init__(app_key, app_secret)
+        self.basic = BasicApi(app_key, app_secret)
+        self.image = ImageApi(app_key, app_secret)
         # TODO video待完成
+

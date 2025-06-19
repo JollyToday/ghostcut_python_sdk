@@ -37,9 +37,8 @@ class BasicApi(BaseGhostcutApi):
         self,
         app_key: Optional[str] = None,
         app_secret: Optional[str] = None,
-        base_url: str = DEFAULT_BASE_URL,
     ):
-        super().__init__(app_key, app_secret, base_url)
+        super().__init__(app_key, app_secret)
 
     def create_sub_user(
         self,
@@ -63,8 +62,7 @@ class BasicApi(BaseGhostcutApi):
         """
         # 该接口不走网关，需要单独请求。根据文档地址：
         params = {"text": text}
-
-        return self.post(BASIC_QUERY_ENUM_PATH, params, use_auth=False)
+        return self.post_without_sign(BASIC_QUERY_ENUM_PATH, params)
 
     def query_balance(
         self, not_zero: bool = False, is_valid: bool = False
@@ -76,7 +74,6 @@ class BasicApi(BaseGhostcutApi):
         :param is_valid: 是否仅包含未过期的资产，默认False
         :return: pointAssets列表及余额详情字典
         """
-        path = BASIC_QUERY_BALANCE_PATH
         params = {}
         if not_zero:
             params["notZero"] = True
@@ -84,7 +81,7 @@ class BasicApi(BaseGhostcutApi):
             params["isValid"] = True
 
         # 空参数传空字典或空字符串均可，传params即可
-        body = self.post(path, params or {})
+        body = self.post(BASIC_QUERY_BALANCE_PATH, params or {})
         return [PointAsset(**item) for item in body]
 
     def query_tts_voice_list(self, is_advanced: bool = 0) -> List[TtsVoiceItem]:
@@ -135,8 +132,7 @@ class BasicApi(BaseGhostcutApi):
         :param file_path: 本地文件路径
         :return: 上传结果dict，含返回的文件标识等
         """
-        path = BASIC_UPLOAD_LOCAL_FILE_PATH
         with open(file_path, "rb") as fp:
             files = {"file": fp}
-            body = self.post(path, files=files)
+            body = self.post(BASIC_UPLOAD_LOCAL_FILE_PATH, files=files)
         return body
