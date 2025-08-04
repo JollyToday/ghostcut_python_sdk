@@ -36,18 +36,12 @@ class GhostCutVeOcrTranslateTaskRequest(GhostCutModel):
         self.id = id
 
     def validate(self):
-        """
-        校验请求参数合法性
-        """
         if self.id is None:
             raise ValueError("id 为必填项")
         if not isinstance(self.id, int):
             raise ValueError("id 必须是整数类型")
 
     def to_map(self):
-        """
-        转换为字典，用于请求体json序列化
-        """
         _map = super().to_map()
         if _map is not None:
             return _map
@@ -57,9 +51,6 @@ class GhostCutVeOcrTranslateTaskRequest(GhostCutModel):
         }
 
     def from_map(self, m: dict = None):
-        """
-        从字典初始化对象
-        """
         m = m or dict()
         self.id = m.get("id")
         return self

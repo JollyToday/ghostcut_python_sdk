@@ -2,7 +2,7 @@
 
 """
 3.6 提交视频克隆任务（普通）请求模型
-文档地址：
+文档地址：https://jollytoday.feishu.cn/wiki/Y9JSwDDo8iVWN2k0IELc5nsMn3f#share-KEqrdC5mgoCHoTxgV03ces1hnKf
 
 功能简述：
     使用克隆声音和公共音色合成视频，提交视频处理任务。
@@ -60,9 +60,6 @@ class GhostCutWorkVoiceIncorporateRequest(GhostCutModel):
         self.callback = callback
 
     def validate(self):
-        """
-        参数校验
-        """
         if not self.urls or not isinstance(self.urls, list) or len(self.urls) == 0:
             raise ValueError("urls 必填，且必须为非空列表，当前只支持一个视频")
         if len(self.urls) > 1:
@@ -112,9 +109,6 @@ class GhostCutWorkVoiceIncorporateRequest(GhostCutModel):
                 raise ValueError("wyVoiceParam非必填，如传必须为字典")
 
     def to_map(self):
-        """
-        转换为字典，方便请求序列化
-        """
         _map = super().to_map()
         if _map is not None:
             return _map
@@ -138,9 +132,6 @@ class GhostCutWorkVoiceIncorporateRequest(GhostCutModel):
         return data
 
     def from_map(self, m: Optional[dict] = None):
-        """
-        从字典反序列化（可选）
-        """
         m = m or {}
         self.urls = m.get("urls")
         self.names = m.get("names")
@@ -150,9 +141,3 @@ class GhostCutWorkVoiceIncorporateRequest(GhostCutModel):
         self.sourceLang = m.get("sourceLang")
         self.callback = m.get("callback")
         return self
-
-
-# === 响应示例说明 ===
-# 成功返回的JSON中，voiceCloneExtraOutputs字段包含背景音、人声的URL等信息
-# voiceCloneTtsMetaResult数组包含每句文本对应的生成语音信息
-# 其他字段省略
