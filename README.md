@@ -1,5 +1,8 @@
-Developing
+# GhostCut Python SDK
 
-参考文档:
-https://weydub.com/docs/api/quickstart.html
+This package keeps the historical GhostCut SDK name for compatibility.
 
+For international users, use Weydub, the international version of GhostCut:
+
+- Weydub API docs: https://weydub.com/docs/api/
+- Quickstart: https://weydub.com/docs/api/quickstart.html
